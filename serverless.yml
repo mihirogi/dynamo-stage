@@ -1,0 +1,92 @@
+service:
+  name: dynamo-stage
+# app and org for use with dashboard.serverless.com
+#app: your-app-name
+#org: your-org-name
+
+custom:
+  webpack:
+    webpackConfig: ./webpack.config.js
+    includeModules: true
+  defaultStage: dev
+  stage: ${opt:stage, self:custom.defaultStage}
+
+# Add the serverless-webpack plugin
+plugins:
+  - serverless-webpack
+  - serverless-iam-roles-per-function
+
+provider:
+  name: aws
+  runtime: nodejs10.x
+  profile: private
+  region: ap-northeast-1
+  stage: ${self:custom.stage}
+  apiGateway:
+    minimumCompressionSize: 1024 # Enable gzip compression for responses > 1 KB
+  environment:
+    AWS_NODEJS_CONNECTION_REUSE_ENABLED: 1
+
+functions:
+  put:
+    handler: receiver.handler
+    events:
+      - http:
+          method: post
+          path: put
+    iamRoleStatementsName: reciever-${self:custom.stage}-lambdaRole
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - "dynamodb:PutItem"
+        Resource:
+          Fn::GetAtt: [DynamoDBStageTable, Arn]
+  logic:
+    handler: logic.handler
+    environment:
+      topicArn:
+        Ref: SnsStageTopic
+    events:
+      - stream:
+          type: dynamodb
+          arn:
+            Fn::GetAtt: [DynamoDBStageTable, StreamArn]
+    iamRoleStatementsName: logic-${self:custom.stage}-lambdaRole
+    iamRoleStatements:
+      - Effect: "Allow"
+        Action:
+          - dynamodb:DescribeStream
+          - dynamodb:GetRecords
+          - dynamodb:GetShardIterator
+          - dynamodb:ListStreams
+        Resource:
+          Fn::GetAtt: [DynamoDBStageTable, Arn]
+      - Effect: "Allow"
+        Action:
+          - SNS:Publish
+        Resource:
+          Ref: SnsStageTopic
+resources:
+  Resources:
+    DynamoDBStageTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: DynamoDBStageTable
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+        StreamSpecification:
+          StreamViewType: NEW_IMAGE
+    SnsStageTopic:
+      Type: AWS::SNS::Topic
+      Properties:
+        TopicName: SnsStageTopic
+        Subscription:
+          - Endpoint: ""
+            Protocol: "email"
