@@ -7,7 +7,9 @@ service:
 custom:
   webpack:
     webpackConfig: ./webpack.config.js
-    includeModules: true
+    includeModules:
+      forceInclude:
+        - debug
   defaultStage: dev
   stage: ${opt:stage, self:custom.defaultStage}
 

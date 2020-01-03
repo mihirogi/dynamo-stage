@@ -1,7 +1,7 @@
 import { Table, Decorator, Query } from "dynamo-types";
 import * as AWS from "aws-sdk";
 import { TableHandler, StreamHandler } from "dynamo-types-stream";
-import 'source-map-support/register';
+import "source-map-support/register";
 
 AWS.config.logger = console;
 const sns = new AWS.SNS();
@@ -34,12 +34,12 @@ const streamHandler = new StreamHandler([
         name: "Insert Records",
         async handler(events) {
           for (const event of events) {
-            const message = `
-            id: ${event.newRecord.id}
-            createdAt: ${event.newRecord.createdAt}
-            updatedAt: ${event.newRecord.updatedAt}
-            `;
             try {
+              const message = `
+              id: ${event.newRecord.id}
+              createdAt: ${event.newRecord.createdAt}
+              updatedAt: ${event.newRecord.updatedAt}
+              `;
               await sns
                 .publish({
                   Subject: "Private環境",

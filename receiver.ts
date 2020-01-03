@@ -2,11 +2,11 @@ import { APIGatewayProxyHandler } from "aws-lambda";
 import * as AWS from "aws-sdk";
 import 'source-map-support/register';
 
-
 const dynamo = new AWS.DynamoDB.DocumentClient({ convertEmptyValues: true });
 AWS.config.logger = console;
 
 export const handler: APIGatewayProxyHandler = async (event, _context) => {
+
   console.log(event.body);
   const json:BackendModel = {
     ...JSON.parse(event.body),

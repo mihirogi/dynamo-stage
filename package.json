@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "aws-sdk": "^2.596.0",
+    "debug": "^4.1.1",
     "dynamo-types": "^2.8.0",
     "dynamo-types-stream": "^2.1.0",
     "source-map-support": "^0.5.10"

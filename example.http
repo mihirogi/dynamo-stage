@@ -1,9 +1,9 @@
 ###
 
-POST https://1ey5wy4w39.execute-api.ap-northeast-1.amazonaws.com/dev/put
+POST https://d81w2wfa73.execute-api.ap-northeast-1.amazonaws.com/dev/put
 
 {
-    "id":"test3",
+    "id":"test345678",
     "hoge":"fuga"
 }
 
