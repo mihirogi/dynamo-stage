@@ -32,6 +32,8 @@ provider:
 functions:
   put:
     handler: receiver.handler
+    environment:
+      stage: ${self:custom.stage}
     events:
       - http:
           method: post
@@ -46,6 +48,7 @@ functions:
   logic:
     handler: logic.handler
     environment:
+      stage: ${self:custom.stage}
       topicArn:
         Ref: SnsStageTopic
     events:
@@ -73,7 +76,7 @@ resources:
     DynamoDBStageTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: DynamoDBStageTable
+        TableName: ${self:custom.stage}DynamoDBStageTable
         AttributeDefinitions:
           - AttributeName: id
             AttributeType: S
@@ -88,7 +91,7 @@ resources:
     SnsStageTopic:
       Type: AWS::SNS::Topic
       Properties:
-        TopicName: SnsStageTopic
+        TopicName: ${self:custom.stage}SnsStageTopic
         Subscription:
           - Endpoint: ""
             Protocol: "email"

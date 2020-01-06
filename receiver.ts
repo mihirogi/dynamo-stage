@@ -15,7 +15,7 @@ export const handler: APIGatewayProxyHandler = async (event, _context) => {
   };
 
   const item = {
-    TableName: "DynamoDBStageTable",
+    TableName: `${process.env.stage}DynamoDBStageTable`,
     ReturnConsumedCapacity: "TOTAL",
     Item: json
   };

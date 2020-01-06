@@ -6,7 +6,7 @@ import "source-map-support/register";
 AWS.config.logger = console;
 const sns = new AWS.SNS();
 
-@Decorator.Table({ name: "DynamoDBStageTable" })
+@Decorator.Table({ name: `${process.env.stage}DynamoDBStageTable` })
 class BackendModelRecord extends Table implements BackendModel {
   @Decorator.HashPrimaryKey("id")
   public static readonly primaryKey: Query.HashPrimaryKey<
@@ -42,7 +42,7 @@ const streamHandler = new StreamHandler([
               `;
               await sns
                 .publish({
-                  Subject: "Private環境",
+                  Subject: `Private-${process.env.stage}環境`,
                   Message: message,
                   TopicArn: process.env.topicArn
                 })
