@@ -12,16 +12,19 @@ custom:
         - debug
   defaultStage: dev
   stage: ${opt:stage, self:custom.defaultStage}
-
+  dynamodbAutoBackups:
+    backupRate: rate(10 minutes) # Every 5 minutes, from the time it was deployed
+    source: server/backups.handler # Path to the handler function we created in step #2
+    active: true
 # Add the serverless-webpack plugin
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
+  - '@unly/serverless-plugin-dynamodb-backups'
 
 provider:
   name: aws
-  runtime: nodejs10.x
-  profile: private
+  runtime: nodejs12.x
   region: ap-northeast-1
   stage: ${self:custom.stage}
   apiGateway:
@@ -31,7 +34,7 @@ provider:
 
 functions:
   put:
-    handler: receiver.handler
+    handler: server/receiver.handler
     environment:
       stage: ${self:custom.stage}
     events:
@@ -46,7 +49,7 @@ functions:
         Resource:
           Fn::GetAtt: [DynamoDBStageTable, Arn]
   logic:
-    handler: logic.handler
+    handler: server/logic.handler
     environment:
       stage: ${self:custom.stage}
       topicArn:
